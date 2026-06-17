@@ -34,6 +34,10 @@ cur.executemany( 'INSERT INTO books (title, author, year, genre) VALUES (%(title
 # cur.executemany('INSERT INTO books (title, author, year, genre) VALUES (%s, %s, %s, %s) ON CONFLICT (title) DO NOTHING', data)
 
 conn.commit()
-cur.execute('SELECT * FROM books')
+# Query all boks
+# cur.execute('SELECT * FROM books')
+# Query only Technology genre
+genre = 'Technology'
+cur.execute('SELECT * FROM books WHERE genre= %s', (genre,))
 rows = cur.fetchall()
 print(rows)
