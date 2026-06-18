@@ -41,3 +41,6 @@ genre = 'Technology'
 cur.execute('SELECT * FROM books WHERE genre= %s', (genre,))
 rows = cur.fetchall()
 print(rows)
+
+cur.close()
+conn.close()
