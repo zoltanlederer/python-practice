@@ -20,3 +20,9 @@ with engine.connect() as connection:
     print("Connected successfully")
     # Create a table
     df.to_sql(name='books', con=connection, if_exists='replace', index=False)
+    print('=>', df)
+
+    # new_df = pd.read_sql('books', connection)
+    # new_df = pd.read_sql('SELECT * FROM books', connection)
+    new_df = pd.read_sql("SELECT author FROM books WHERE title = 'Dune'", connection)
+    print('===>', new_df)
