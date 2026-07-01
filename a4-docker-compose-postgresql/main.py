@@ -2,7 +2,7 @@ import requests
 # import psycopg2
 import os
 # from dotenv import load_dotenv
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 # load_dotenv()
 
@@ -46,11 +46,21 @@ def fetch_rates():
         print(f'Connection failed: {e}')
         raise
 
-print(fetch_rates())
+def transform_rates(data):
+    formatted = []
+    for date, rates in data['rates'].items():
+        for currency, rate in rates.items():
+            formatted.append((date, 'EUR', currency, rate, datetime.now()))
 
-# def transform_rates():
+    return formatted
+
 # def insert_rates():
-# def main():
 
-# if __name__ == "__main__":
-#     main()
+def main():
+    data = fetch_rates()
+    transform = transform_rates(data)
+    print(transform)
+    print(data)
+    
+if __name__ == "__main__":
+    main()
