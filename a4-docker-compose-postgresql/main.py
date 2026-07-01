@@ -1,7 +1,7 @@
 import requests
-# import psycopg2
+import psycopg2
 import os
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 from datetime import date, timedelta, datetime
 
 # load_dotenv()
@@ -35,6 +35,7 @@ def setup_database():
     conn.close()
 
 def fetch_rates():
+    """Get 7 days of exchange rates"""
     today = date.today()
     seven_days_ago = today - timedelta(days=7)
     try:
@@ -47,6 +48,7 @@ def fetch_rates():
         raise
 
 def transform_rates(data):
+    """Convert API response into list of tuples"""
     formatted = []
     for date, rates in data['rates'].items():
         for currency, rate in rates.items():
@@ -54,13 +56,30 @@ def transform_rates(data):
 
     return formatted
 
-# def insert_rates():
+def insert_rates(data):
+    """Takes a list of tuples and writes them into PostgreSQL"""
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        for item in data:
+            cursor.execute("""
+                INSERT INTO exchange_rates (date, base, target, rate, fetched_at)
+                VALUES (%s, %s, %s, %s, %s)
+                ON CONFLICT (date, target) DO NOTHING
+            """, item)
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except psycopg2.Error as e:
+        print(f'Database error: {e}')
+        raise
 
 def main():
     data = fetch_rates()
     transform = transform_rates(data)
-    print(transform)
-    print(data)
-    
+    insert = insert_rates(transform)
+
 if __name__ == "__main__":
     main()
