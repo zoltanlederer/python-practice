@@ -82,6 +82,7 @@ def main():
     while count < 10:
         try:
             get_connection()
+            setup_database()
             data = fetch_rates()
             transform = transform_rates(data)
             insert_rates(transform)
