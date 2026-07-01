@@ -1,9 +1,10 @@
 import requests
-import psycopg2
+# import psycopg2
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
+from datetime import date, timedelta
 
-load_dotenv()
+# load_dotenv()
 
 def get_connection():
     """Create and return a connection"""
@@ -15,6 +16,7 @@ def get_connection():
     return psycopg2.connect(host=host, port=port, dbname=name, user=user, password=password)
 
 def setup_database():
+    """Create the exchange_rates table if it doesn't exist."""
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
@@ -31,3 +33,24 @@ def setup_database():
     conn.commit()
     cursor.close()
     conn.close()
+
+def fetch_rates():
+    today = date.today()
+    seven_days_ago = today - timedelta(days=7)
+    try:
+        url = f'https://api.frankfurter.app/{seven_days_ago}..{today}?from=EUR&to=USD,HUF,AUD'
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f'Connection failed: {e}')
+        raise
+
+print(fetch_rates())
+
+# def transform_rates():
+# def insert_rates():
+# def main():
+
+# if __name__ == "__main__":
+#     main()
