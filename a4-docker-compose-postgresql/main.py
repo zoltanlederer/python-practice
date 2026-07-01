@@ -1,10 +1,11 @@
 import requests
 import psycopg2
 import os
+import time
 from dotenv import load_dotenv
 from datetime import date, timedelta, datetime
 
-# load_dotenv()
+load_dotenv()
 
 def get_connection():
     """Create and return a connection"""
@@ -77,9 +78,20 @@ def insert_rates(data):
         raise
 
 def main():
-    data = fetch_rates()
-    transform = transform_rates(data)
-    insert = insert_rates(transform)
-
+    count = 0
+    while count < 10:
+        try:
+            get_connection()
+            data = fetch_rates()
+            transform = transform_rates(data)
+            insert_rates(transform)
+            break
+        except psycopg2.OperationalError:
+            print(f'There was an error during the connection. Trying to connect again. Please wait.')
+            count += 1
+            time.sleep(2)
+    else:
+        print("Sorry couldn't connect. Please try to connect later.")
+        
 if __name__ == "__main__":
     main()
